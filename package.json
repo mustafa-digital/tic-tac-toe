@@ -1,0 +1,15 @@
+{
+  "name": "tic-tac-toe",
+  "version": "1.0.0",
+  "description": "This is a tic tac toe app that you can play on the browser",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "eslintConfig": {
+    "extends": ["wesbos"]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

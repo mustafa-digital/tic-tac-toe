@@ -1,0 +1,19 @@
+{
+    "extends": [
+      "wesbos"
+    ],
+
+    "rules": {
+      "no-console": 1,
+      "quotes": ["error", "double"],
+      "prettier/prettier": [
+        "error",
+        {
+          "doubleQuote": true,
+          "endOfLine": "auto",
+          "tabWidth": 4
+        },
+      ],
+    }
+
+}
