@@ -98,7 +98,7 @@ const gameLogic = (function () {
 
         if (gameResult === GAME_DRAW || gameResult === GAME_WIN) {
             if (gameResult === GAME_WIN) {
-                displayController.setWinAnimations(positionX, positionY);
+                setTimeout(displayController.setWinAnimations, 250);
             }
             gameOver = true;
             gameOverMessage();
