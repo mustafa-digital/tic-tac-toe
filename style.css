@@ -1,5 +1,5 @@
 @font-face {
-    font-family: "alexandria";
+    font-family: "supreme";
     src: url(fonts/SUPREME_.TTF);
 }
 
@@ -29,7 +29,7 @@ body {
     height: 100vh;
     background-color: #141414;
     font-size: 24px;
-    font-family: alexandria, sans-serif;
+    font-family: supreme, sans-serif;
 }
 
 .container {
