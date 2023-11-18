@@ -26,10 +26,6 @@ const gameBoard = (function () {
         if (gameArray[positionX][positionY] !== 0) {
             throw new Error("Marker already exists at this location.");
         }
-
-        console.log(
-            `Placing marker on game board at ${positionX},${positionY}`,
-        );
         gameArray[positionX][positionY] = player.getPlayerMarker();
     };
 
@@ -41,11 +37,6 @@ const gameBoard = (function () {
             [0, 0, 0],
             [0, 0, 0],
         ];
-        // gameArray.forEach((row) => {
-        //     row.forEach((square) => {
-        //         square = 0;
-        //     });
-        // });
     };
 
     return { displayGameBoard, placeMarker, getGameBoard, resetGameBoard };
@@ -94,6 +85,8 @@ const gameLogic = (function () {
         winner = player;
     };
 
+    const getWinner = () => winner;
+
     const switchPlayerTurn = () => {
         currentPlayer = currentPlayer === player1 ? player2 : player1;
     };
@@ -104,6 +97,9 @@ const gameLogic = (function () {
         gameResult = checkGameOverState(positionX, positionY);
 
         if (gameResult === GAME_DRAW || gameResult === GAME_WIN) {
+            if (gameResult === GAME_WIN) {
+                displayController.setWinAnimations(positionX, positionY);
+            }
             gameOver = true;
             gameOverMessage();
             displayController.gameOverRemoveClickEvents();
@@ -195,6 +191,7 @@ const gameLogic = (function () {
     return {
         getCurrentPlayer,
         getGameOver,
+        getWinner,
         checkGameOverState,
         playTurn,
         resetGame,
@@ -207,6 +204,7 @@ const gameLogic = (function () {
 const displayController = (function () {
     let gameGrid;
     let gridSquares;
+    let tipSpan;
     const gridSquaresClickEvent = (event) => {
         const currentPlayer = gameLogic.getCurrentPlayer();
         const currentPlayerMarker = currentPlayer.getPlayerMarker();
@@ -238,9 +236,20 @@ const displayController = (function () {
     };
 
     const resetGrid = () => {
+        gameGrid.classList.remove("win-animation-border");
+        gameGrid.classList.add("borger-og-grid");
+
+        tipSpan.classList.remove("letter-rainbow-animation");
+
+        for (const gridSquare of gameGrid.children) {
+            gridSquare.classList.remove("letter-rainbow-animation");
+        }
+
         for (let i = 0; i < gridSquares.length; i++) {
             gridSquares[i].classList.remove("X");
             gridSquares[i].classList.remove("O");
+            gridSquares[i].classList.remove("win-animation-border");
+            gridSquares[i].classList.add("border-og");
         }
     };
 
@@ -253,7 +262,7 @@ const displayController = (function () {
     };
 
     const updateTurnTip = (isGameOver) => {
-        const tipSpan = document.querySelector(".game-turn-tip");
+        tipSpan = document.querySelector(".game-turn-tip");
 
         if (isGameOver) {
             tipSpan.textContent = gameLogic.gameOverMessage();
@@ -264,6 +273,26 @@ const displayController = (function () {
         }
     };
 
+    const setWinAnimations = () => {
+        gameGrid.classList.remove("border-og");
+        gameGrid.classList.add("win-animation-border");
+
+        if (gameLogic.getWinner()) {
+            tipSpan.classList.add("letter-rainbow-animation");
+        }
+        for (let i = 0; i < gridSquares.length; i++) {
+            gridSquares[i].classList.remove("border-og");
+            gridSquares[i].classList.add("win-animation-border");
+        }
+        const winningLetters = gameGrid.getElementsByClassName(
+            gameLogic.getCurrentPlayer().getPlayerMarker(),
+        );
+
+        for (let i = 0; i < winningLetters.length; i++) {
+            winningLetters[i].classList.add("letter-rainbow-animation");
+        }
+    };
+
     return {
         setupGameBoard,
         gameOverRemoveClickEvents,
@@ -271,6 +300,7 @@ const displayController = (function () {
         removeResetEvent,
         resetGrid,
         updateTurnTip,
+        setWinAnimations,
     };
 })();
 

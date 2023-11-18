@@ -1,3 +1,18 @@
+@font-face {
+    font-family: "alexandria";
+    src: url(fonts/SUPREME_.TTF);
+}
+
+@font-face {
+    font-family: "square-deal";
+    src: url(fonts/Squares\ Bold\ Free.otf);
+}
+
+@font-face {
+    font-family: "game-continue";
+    src: url(fonts/gomarice_game_continue_02.ttf);
+}
+
 * {
     padding : 0px;
     margin: 0px;
@@ -8,6 +23,8 @@ body {
     width: 100vw;
     height: 100vh;
     background-color: #141414;
+    font-size: 24px;
+    font-family: alexandria, sans-serif;
 }
 
 .container {
@@ -26,32 +43,67 @@ header {
     height: 100px;
     width: 100%;
     align-self: start;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
 }
 
 .game-grid-top {
     grid-area: 2 / 2 / 3 / 3;
 }
 .game-turn-tip {
-    font-size: 24px;
+    font-size: 1.2em;
     color: white;
+    font-family: game-continue;
     
 }
 
 .game-grid {
+    --angle: 0deg;
     grid-area: 3 / 2 / 4 / 3;
     height: 100%;
     width: 100%;
-    border: 3px solid white;
     display: grid;
     grid-template-rows: 1fr 1fr 1fr;
     grid-template-columns: 1fr 1fr 1fr;
 }
 
+.border-og-grid {
+    border: 3px solid white;
+}
+
+.border-og {
+    border: 3px solid white;
+}
+
+.win-animation-border {
+    border: 3px solid;
+    border-image: conic-gradient(from var(--angle), red, yellow, lime, aqua, blue, magenta, red) 1;
+	animation: 2s rotate linear infinite, fadeOut .4s 3 step-start;
+}
+
+
+@keyframes rotate {
+    to {
+        --angle: 360deg;
+    }
+}
+
+@keyframes fadeOut {
+    50% {
+        opacity: 0;
+    }
+}
+
+@property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
 .grid-square {
     height: 100%;
     width: 100%;
-
-    border: 3px solid white;
     cursor: pointer;
 }
 
@@ -112,9 +164,41 @@ header {
 
 .X::after,
 .O::after {
-    font-size: 13vmin;
+    font-size: calc(11vmin + 5px);
     color: white;
 }
+
+@keyframes moveRainbow {
+    0%, 100%{
+        background-position: 100% 0;
+    }
+    50% {
+        background-position: 0 0;
+    }
+}
+
+.title {
+    align-self: center;
+    font-family: square-deal, sans-serif;
+}
+
+.title::after {
+    content: "Tic-Tac-Toe";
+    color: white;
+    font-size: 4em;
+}
+
+.letter-rainbow-animation::after,
+.letter-rainbow-animation {
+    background: linear-gradient(to right, red, yellow, lime, aqua, blue, magenta, red);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: moveRainbow 10s linear infinite;
+    background-size: 400% 100%;
+}
+
+
 
 .scores {
     grid-area: 4 / 2 / 5 / 3;
