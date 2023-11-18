@@ -1,15 +1,18 @@
-const TOP = 0;
-const MIDDLE = 1;
-const BOTTOM = 2;
-const LEFT = 0;
-const RIGHT = 2;
+const positionObj = {
+    top: 0,
+    center: 1,
+    bottom: 2,
+    left: 0,
+    middle: 1,
+    right: 2,
+};
 const MAX_GAME_TURNS = 9;
 const GAME_DRAW = 1;
 const GAME_NOT_OVER = 0;
 const GAME_WIN = 2;
 
 const gameBoard = (function () {
-    const gameArray = [
+    let gameArray = [
         [0, 0, 0],
         [0, 0, 0],
         [0, 0, 0],
@@ -32,12 +35,25 @@ const gameBoard = (function () {
 
     const getGameBoard = () => gameArray.map((arr) => arr.slice());
 
-    return { displayGameBoard, placeMarker, getGameBoard };
+    const resetGameBoard = () => {
+        gameArray = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+        ];
+        // gameArray.forEach((row) => {
+        //     row.forEach((square) => {
+        //         square = 0;
+        //     });
+        // });
+    };
+
+    return { displayGameBoard, placeMarker, getGameBoard, resetGameBoard };
 })();
 
 function createPlayer(playerNum) {
     const id = playerNum;
-    const marker = id === 1 ? "o" : "x";
+    const marker = id === 1 ? "O" : "X";
 
     const getPlayerID = () => id;
     const getPlayerMarker = () => marker;
@@ -54,28 +70,23 @@ const gameLogic = (function () {
     let gameTurn = 0;
     let gameResult = 0;
 
-    const setPlayers = (p1, p2) => {
-        player1 = p1;
-        player2 = p2;
+    const setPlayers = () => {
+        player1 = createPlayer(1);
+        player2 = createPlayer(2);
 
         currentPlayer = player1;
     };
 
-    const getPlayerTurn = () => currentPlayer;
-
-    const setCurrentPlayer = (player) => {
-        currentPlayer = player;
-        console.log(`current player turn is: ${player.getPlayerID()}`);
-    };
+    const getCurrentPlayer = () => currentPlayer;
 
     const getGameOver = () => gameOver;
 
-    const getGameOverMessage = () => {
+    const gameOverMessage = () => {
         if (gameResult === GAME_DRAW) {
-            console.log("This game has ended in a draw!");
+            return "This game has ended in a draw!";
         }
         if (gameResult === GAME_WIN) {
-            console.log(`The winner is Player ${winner.getPlayerID()}!`);
+            return `The winner is Player ${winner.getPlayerID()}!`;
         }
     };
 
@@ -83,37 +94,27 @@ const gameLogic = (function () {
         winner = player;
     };
 
-    const getWinner = () => winner;
-
     const switchPlayerTurn = () => {
-        console.log(
-            `switching player turn from ${currentPlayer.getPlayerID()}`,
-        );
         currentPlayer = currentPlayer === player1 ? player2 : player1;
-        console.log(
-            `now current player turn is: ${currentPlayer.getPlayerID()}`,
-        );
     };
 
-    const playTurn = () => {
-        alert(`Player ${currentPlayer.getPlayerID()}, choose a spot to mark`);
-        const positionX = Number(prompt("X"));
-        const positionY = Number(prompt("Y"));
-
+    const playTurn = (positionX, positionY) => {
         gameBoard.placeMarker(positionX, positionY, currentPlayer);
-        gameBoard.displayGameBoard();
         gameTurn += 1;
         gameResult = checkGameOverState(positionX, positionY);
 
-        if (gameResult === GAME_DRAW || gameResult === GAME_WIN)
+        if (gameResult === GAME_DRAW || gameResult === GAME_WIN) {
             gameOver = true;
+            gameOverMessage();
+            displayController.gameOverRemoveClickEvents();
+            setTimeout(displayController.addResetEvent, 2000);
+        } else {
+            switchPlayerTurn();
+        }
+        displayController.updateTurnTip(gameOver);
     };
 
     const checkGameOverState = (positionX, positionY) => {
-        if (gameTurn === MAX_GAME_TURNS) {
-            return GAME_DRAW;
-        }
-
         const board = gameBoard.getGameBoard();
 
         // check horizontal
@@ -170,45 +171,110 @@ const gameLogic = (function () {
                 return GAME_WIN;
             }
         }
+        if (gameTurn === MAX_GAME_TURNS) {
+            return GAME_DRAW;
+        }
+
         return GAME_NOT_OVER;
     };
 
+    const resetGame = () => {
+        switchPlayerTurn();
+        gameOver = false;
+        winner = null;
+        gameTurn = 0;
+        gameResult = 0;
+
+        gameBoard.resetGameBoard();
+        displayController.removeResetEvent();
+        displayController.resetGrid();
+        displayController.updateTurnTip();
+        displayController.setupGameBoard();
+    };
+
     return {
-        getPlayerTurn,
-        setCurrentPlayer,
+        getCurrentPlayer,
         getGameOver,
-        getGameOverMessage,
         checkGameOverState,
         playTurn,
+        resetGame,
         switchPlayerTurn,
         setPlayers,
-        getWinner,
+        gameOverMessage,
     };
 })();
 
-const gameLoop = (function () {
-    const gameWinner = null;
+const displayController = (function () {
+    let gameGrid;
+    let gridSquares;
+    const gridSquaresClickEvent = (event) => {
+        const currentPlayer = gameLogic.getCurrentPlayer();
+        const currentPlayerMarker = currentPlayer.getPlayerMarker();
+        event.target.classList.add(currentPlayerMarker);
 
-    const startGame = () => {
-        console.log("initializing game...");
-        const player1 = createPlayer(1);
-        const player2 = createPlayer(2);
-        gameLogic.setPlayers(player1, player2);
-        console.log("set players...");
-        runGame();
+        sendPositionsToGameLogic(event.target);
     };
 
-    const runGame = () => {
-        while (gameLogic.getGameOver() === false) {
-            gameLogic.playTurn();
-            gameLogic.switchPlayerTurn();
+    const gameOverRemoveClickEvents = () => {
+        for (let i = 0; i < gridSquares.length; i++) {
+            gridSquares[i].removeEventListener("click", gridSquaresClickEvent);
         }
-        gameLogic.getGameOverMessage();
     };
 
-    return { startGame };
+    const sendPositionsToGameLogic = (gridSquare) => {
+        const classList = Array.from(gridSquare.classList);
+        const positionX = positionObj[classList[1]];
+        const positionY = positionObj[classList[2]];
+
+        gameLogic.playTurn(positionX, positionY);
+    };
+
+    const setupGameBoard = () => {
+        gameGrid = document.querySelector(".game-grid");
+        gridSquares = gameGrid.getElementsByClassName("grid-square");
+        for (let i = 0; i < gridSquares.length; i++) {
+            gridSquares[i].addEventListener("click", gridSquaresClickEvent);
+        }
+    };
+
+    const resetGrid = () => {
+        for (let i = 0; i < gridSquares.length; i++) {
+            gridSquares[i].classList.remove("X");
+            gridSquares[i].classList.remove("O");
+        }
+    };
+
+    const addResetEvent = () => {
+        gameGrid.addEventListener("click", gameLogic.resetGame);
+    };
+
+    const removeResetEvent = () => {
+        gameGrid.removeEventListener("click", gameLogic.resetGame);
+    };
+
+    const updateTurnTip = (isGameOver) => {
+        const tipSpan = document.querySelector(".game-turn-tip");
+
+        if (isGameOver) {
+            tipSpan.textContent = gameLogic.gameOverMessage();
+        } else {
+            tipSpan.textContent = `Player ${gameLogic
+                .getCurrentPlayer()
+                .getPlayerID()}'s turn`;
+        }
+    };
+
+    return {
+        setupGameBoard,
+        gameOverRemoveClickEvents,
+        addResetEvent,
+        removeResetEvent,
+        resetGrid,
+        updateTurnTip,
+    };
 })();
 
 document.addEventListener("DOMContentLoaded", () => {
-    gameLoop.startGame();
+    gameLogic.setPlayers();
+    displayController.setupGameBoard();
 });

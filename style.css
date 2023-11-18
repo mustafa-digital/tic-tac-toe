@@ -1,0 +1,121 @@
+* {
+    padding : 0px;
+    margin: 0px;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    background-color: #141414;
+}
+
+.container {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-rows: 1fr 5vmin 50vmin 1fr;
+    grid-template-columns: 1fr 50vmin 1fr;
+    align-items: center;
+    justify-content: center;
+}
+
+header {
+    grid-area: 1 / 1 / 2 / -1;
+    background-color: black;
+    height: 100px;
+    width: 100%;
+    align-self: start;
+}
+
+.game-grid-top {
+    grid-area: 2 / 2 / 3 / 3;
+}
+.game-turn-tip {
+    font-size: 24px;
+    color: white;
+    
+}
+
+.game-grid {
+    grid-area: 3 / 2 / 4 / 3;
+    height: 100%;
+    width: 100%;
+    border: 3px solid white;
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.grid-square {
+    height: 100%;
+    width: 100%;
+
+    border: 3px solid white;
+    cursor: pointer;
+}
+
+.top.left {
+    grid-area: 1 / 1 / 2 / 2;
+}
+
+.top.middle {
+    grid-area: 1 / 2 / 2 / 3;
+}
+
+.top.right {
+    grid-area: 1 / 3 / 2 / 4;
+}
+
+.center.left {
+    grid-area: 2 / 1 / 3 / 2;
+}
+
+.center.middle {
+    grid-area: 2 / 2 / 3 / 3;
+}
+
+.center.right {
+    grid-area: 2 / 3 / 3 / 4;
+}
+
+.bottom.left {
+    grid-area: 3 / 1 / 4 / 2;
+}
+
+.bottom.middle {
+    grid-area: 3 / 2 / 4 / 3;
+}
+
+.bottom.right {
+    grid-area: 3 / 3 / 4 / 4;
+}
+
+.scores {
+    grid-area: 3 / 2 / 4 / 3;
+}
+
+.X,
+.O {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.X::after {
+    content: "X";   
+}
+
+.O::after {
+    content: "O";
+}
+
+.X::after,
+.O::after {
+    font-size: 13vmin;
+    color: white;
+}
+
+.scores {
+    grid-area: 4 / 2 / 5 / 3;
+}
